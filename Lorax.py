@@ -3,7 +3,7 @@ import re
 import json 
 from collections import Counter
 
-os.chdir("loraxDataTest") #changes the directory to the one with all the data files 
+os.chdir("loraxDataTest") #changes the directory to the one with all the data files
 TAXLABELS = re.compile("\[(\d+)\] '(.*)'") # [44] 'Unionidae_Unioninae_Cuneopsis_pisciculus'
 Matrix = re.compile("(\d+)\s+((\d+( |,))+)") #  29   3 4 41 43 45 46 47 48,
 cladesInput = re.compile("(.*) = (.*)") # Blue_Clams = Unionidae_Rectidentinae_Contradens_contradens, Unionidae_Rectidentinae_Solenaia_khwaenoiensis
@@ -12,6 +12,31 @@ indexToName = {}  # {index:speciesName}
 matrixValues = [] # [[boostrap, indexlist],[boostrap, indexlist]]
 cladesOfInterest = {} # {cladeName: speciesInCladeList}
 cladesOfInterestIndexes = {} # {cladeName : splitIndexOfSpeciesInCladeList}
+
+def getValFromFile(fileContents, regex, group):
+    '''
+    generic funtion that takes a list of strings, searches each for a specific regex pattern, and returns a specified group from that pattern
+    Parameters
+    ----------
+    fileContents : list
+        contents of a file. each item is 1 line of the file
+    regex : str
+        string representation of a regex
+    group : int
+        group ID of the regex match to return
+    Returns
+    -------
+    string
+        value from group in a regex match
+    '''
+    reg = re.compile(regex)
+    for line in fileContents:
+        line=line.strip('\n')
+        match = re.search(reg, line) 
+        if match: 
+            return match.group(1)       
+    return None 
+
 
 def populateNameIndexDicts(lines):
     '''
@@ -26,8 +51,8 @@ def populateNameIndexDicts(lines):
         speciesName -> index
     Dict
         index -> speciesName
-
     '''
+
     for l in lines:
         l=l.strip('\n')
         match = re.search(TAXLABELS, l)
@@ -145,6 +170,7 @@ outputFile  = open("outputFile.txt", "w")
 outputFile.write("LOCI")
 for cladeName, species in cladesOfInterest.items():
     outputFile.write(",\t"+str(cladeName))
+outputFile.write(",\tNT,\tPI,\tTL,\tIB")
 outputFile.write("\n")
 
 
@@ -171,12 +197,31 @@ for fileName in glob.glob("*.nex"): #this will effect every file that has '.txt'
     outputFile.write(fileName)
     for clade, cladeIndexes in cladesOfInterestIndexes.items():
         confidenceLevel = "N/A" #defualt value, if we do not find the clade in the split
+
         for mx in matrixValues:
             bootstrapValue = mx[0]
             speciesIndexList = mx[1]
-            if compareClades(speciesIndexList, cladeIndexes):
+            if compareClades(speciesIndexList, cladeIndexes): 
                 confidenceLevel = str(bootstrapValue)
+                break
+
+        if len(cladeIndexes) < 2: #make sure there are at least 2 species in the clade seen in the loci
+            confidenceLevel = 'X'
+
         outputFile.write(",\t"+str(confidenceLevel))
+
+    with open(fileName.replace("splits.nex", "iqtree"), "r") as iqTreeFile: #open the file for reading
+        iqTreeFileContents = iqTreeFile.readlines()
+
+    NT = getValFromFile(iqTreeFileContents, "Input data: (\d+)", 1)
+    PI = getValFromFile(iqTreeFileContents, "Number of parsimony informative sites: (\d+)", 1)
+    TL = getValFromFile(iqTreeFileContents, "Total tree length .* (\d+.\d+)", 1)
+    IB = getValFromFile(iqTreeFileContents, "Sum of internal branch lengths: (\d+.\d+)", 1)
+
+    outputFile.write(",\t"+str(NT)+",\t"+str(PI)+",\t"+str(TL)+",\t"+str(IB))
+
+
+
     outputFile.write("\n")
 
 
