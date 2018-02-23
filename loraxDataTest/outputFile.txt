@@ -1,3 +1,3 @@
-LOCI,	Blue_Clams,	Banana_Clams,	Green_Clams
-FcC_test.nex,	89,	N/A,	100
-FcC_test2.nex,	100,	N/A,	100
+LOCI,			NA_Clams,	Blue_Clams,	Banana_Clams,	Green_Clams,	NT,	PI,	TL,	IB
+FcC_test.splits.nex,	N/A,		89,		X,		89,		98,	76,	5.4,	3.21
+FcC_test2.splits.nex,	N/A,		X,		X,		X,		54,	32,	1.0,	1.1234
