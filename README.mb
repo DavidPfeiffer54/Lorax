@@ -1,0 +1,124 @@
+
+Bottom Line: I want to define clades of interest (groups of interest - glochidia-bearing mussels, Lampsilis, blue clams, ect) 
+and determine what genes (loci) resolve that clade and record its support value. 
+I hope the final output will look something like:
+
+LOCI		support values for Blue Clams		Support values for Green Clams		...	
+L1					90									0							...			
+L2					0									100										
+...
+L813				50									90							...							
+
+
+Each of the *.splits.nex files represents a "tree" based on a single locus (gene)
+
+FcC_aa_L1.skinny.fas.splits.nex 		# tree from Locus 1 (L1)
+FcC_aa_L2.skinny.fas.splits.nex			 # tree from Locus 2 (L2)
+...
+FcC_aa_L813.skinny.fas.splits.nex		 # tree from Locus 813 (L813)
+
+Each of these files contains two bits: TAXA and SPLITS
+
+TAXA describes what species are represented at this loci.  My data was
+generated using "shotgun sequencing" so some loci have all 70 species represented, while others loci have
+less species represented (sometimes considerably less). 
+This complicates things as the numbers in TAXLABLES won't jive between loci. 
+
+For example:
+L2
+[1] 'Unionidae_Gonideinae_Gonidiea_angulata'
+[2] 'Unionidae_Gonideinae_Pilsbryoconcha'
+[3] 'Unionidae_Ambleminae_Plectomerus_dombeyanus'
+[4] 'Unionidae_Gonideinae_Lamprotula_cornuumlunae'
+[5] 'Unionidae_Rectidentinae_Trapezoideus_foliaceus'
+
+L5
+[1] 'Cyrenidae_Cyreninae_Cobicula_sp'
+[2] 'Etheriidae_Etheriinae_Etheria_elliptica'
+[3] 'Hyriidae_Hyriinae_Hyridella_australis'
+[4] 'Margaritiferidae_Margaritiferinae_Margaritifera_hembeli'
+[5] 'Mycetopodidae_Anodontitinae_Anodontites_elongata'
+
+"We" could redefine the taxa numbers in each file based on a full reference or "find/replace" numbers with species name
+
+The second part "SPLITS" describes the bootstrap support (a measure of confidence)
+for ALL the recovered clades based on that locus
+
+ bootstrap support					Clade
+	83	 					7 8 9 10 11 12 13 14 15 16 17 19,
+	85	 					6 7 8 9 10 11 12 13 14 15 16 17 19,
+	92	 					1 2 5 20 29 33 34 35 36 37 38 39 40 49,
+	...						...
+
+I want to define clades of interest (INPUT), look for those clades in the SPLITS of each *.splits.nex,
+and then print the bootstrap value for the clades of interest to that outfile I mentioned earlier
+
+INPUT - defines clades of interest
+
+Blue_Clams = Unionidae_Ambleminae_Plectomerus_dombeyanus, Unionidae_Ambleminae_Amblema_plicata, Unionidae_Ambleminae_Reginaia_ebenus
+Green_Clams = Unionidae_Unioninae_Unio_gibbus, Unionidae_Unioninae_Oxynaia_jourdyi, Unionidae_Unioninae_Nodularia_douglasiae, Unionidae_Unioninae_Cuneopsis_pisciculus, Unionidae_Unioninae_Arconaia_lanceolata
+
+Finding these strings in each of *.splits.nex would be really straight forward if each of the 
+species in the defined clades was represented in each locus but they are not. 
+
+In order to grab the bootstrap value for the clade of interest, it must include all the species defined in INPUT and nothing else, 
+unless that the species is not represented in that loci.
+
+INPUT
+purple_clam = 2,3,4,5
+
+L1
+TAXLABLES 1,2,3,4,5,6		This loci contains sequences from each of the species of purple_clam
+
+95			2,3,4,5 		found purple clams		grab bootstrap		includes all purple clams represented in this locus
+70			4,5				not clade of interest	do nothing			includes only some purple clams
+95			2,3 			not clade of interest	do nothing			includes only some purple clams			
+70			1,6				not clade of interest	do nothing
+100			1,2,3,4,5,6		not clade of interest	do nothing
+
+
+L2 
+taxa list 1,2,4,5,6			This loci contains sequences for all the purple clams except '3' so find "purple clams (sans 3)"
+
+70			2,4,5			found purple clams		grab bootstrap		includes all purple clams represented in this locus
+100			4,5				not clade of interest	do nothing			includes only some purple clams
+70			1,6				not clade of interest	do nothing
+100			1,2,4,5,6		not clade of interest	do nothing
+
+L3
+taxa list 1,2,3,4,5,6
+70			3,4,5			not clade of interest	do nothing			missing '2'
+100			4,5 			not clade of interest	do nothing			missing '2', '3'
+100			2,3,4,5,		found purple clams		grab bootstrap		includes all purple clams represented in this locus
+100			2,3,4,5,6		not clade of interest	do nothing			includes a non-purple clam	
+
+
+To grab bootstrap it must include all purple clams and nothing else. 
+if one or more of the purple clams are not represented in that loci, find the ones that are, and that’s it.
+
+
+
+I'd also like to grab some values from another set of files for each loci "*.iqtree" and add them to the output
+
+LOCI		support value for Blue Clams		Support value for Green Clams	#Taxa	PI			TL			IB		
+L1					90									0						70		49582		3.4312		0.9585	
+L2					0									100						40		49582		2			.75		
+...
+L813				50									90						10		49582		1			.25		
+
+#Taxa = Input data: 70
+PI = Number of parsimony informative sites: 49582
+TL = Total tree length (sum of branch lengths): 3.4312
+IB = Sum of internal branch lengths: 0.9585
+
+
+
+
+
+
+
+
+
+
+
+

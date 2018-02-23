@@ -1,0 +1,34 @@
+#nexus
+
+BEGIN Taxa;
+DIMENSIONS ntax=49;
+TAXLABELS
+[1] 'Cyrenidae_Cyreninae_Cobicula_sp'
+[2] 'Etheriidae_Etheriinae_Etheria_elliptica'
+[3] 'Hyriidae_Hyriinae_Hyridella_australis'
+[4] 'Margaritiferidae_Margaritiferinae_Margaritifera_hembeli'
+[32] 'Unionidae_Parryesiinae_Unionetta_fabigina'
+[33] 'Unionidae_Rectidentinae_Contradens_contradens'
+[34] 'Unionidae_Rectidentinae_Ensidens_ingallsianus'
+[38] 'Unionidae_Rectidentinae_Salweeniana_salweeniana'
+[39] 'Unionidae_Rectidentinae_Solenaia_khwaenoiensis'
+[40] 'Unionidae_Rectidentinae_Trapezoideus_foliaceus'
+
+;
+END; [Taxa]
+
+BEGIN Splits;
+DIMENSIONS ntax=49 nsplits=469;
+FORMAT labels=no weights=yes confidences=no intervals=no;
+MATRIX
+	100	 1,
+	100	 33,
+	100	 39,
+	89	 33 39,
+	74	 1 33 39,
+	100	 2,
+	100	 3,
+
+;
+END; [Splits]
+

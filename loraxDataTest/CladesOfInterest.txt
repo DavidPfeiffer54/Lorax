@@ -1,0 +1,3 @@
+Blue_Clams = Unionidae_Rectidentinae_Contradens_contradens, Unionidae_Rectidentinae_Solenaia_khwaenoiensis
+Green_Clams = Etheriidae_Etheriinae_Etheria_elliptica, Notina_TheLoci
+Banana_Clams = Itsa_Notthere, Notina_Theloci
