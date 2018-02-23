@@ -4,7 +4,6 @@ import json
 from collections import Counter
 
 os.chdir("loraxDataTest") #changes the directory to the one with all the data files
-
 TAXLABELS = re.compile("\[(\d+)\] '(.*)'") # [44] 'Unionidae_Unioninae_Cuneopsis_pisciculus'
 Matrix = re.compile("(\d+)\s+((\d+( |,))+)") #  29   3 4 41 43 45 46 47 48,
 cladesInput = re.compile("(.*) = (.*)") # Blue_Clams = Unionidae_Rectidentinae_Contradens_contradens, Unionidae_Rectidentinae_Solenaia_khwaenoiensis
@@ -27,10 +26,8 @@ def getValFromFile(fileContents, regex, group):
         group ID of the regex match to return
     Returns
     -------
-    Dict
-        speciesName -> index
-    Dict
-        index -> speciesName
+    string
+        value from group in a regex match
     '''
     reg = re.compile(regex)
     for line in fileContents:
@@ -55,6 +52,7 @@ def populateNameIndexDicts(lines):
     Dict
         index -> speciesName
     '''
+
     for l in lines:
         l=l.strip('\n')
         match = re.search(TAXLABELS, l)
@@ -203,11 +201,13 @@ for fileName in glob.glob("*.nex"): #this will effect every file that has '.txt'
         for mx in matrixValues:
             bootstrapValue = mx[0]
             speciesIndexList = mx[1]
-            if compareClades(speciesIndexList, cladeIndexes) :
+            if compareClades(speciesIndexList, cladeIndexes): 
                 confidenceLevel = str(bootstrapValue)
                 break
+
         if len(cladeIndexes) < 2: #make sure there are at least 2 species in the clade seen in the loci
             confidenceLevel = 'X'
+
         outputFile.write(",\t"+str(confidenceLevel))
 
     with open(fileName.replace("splits.nex", "iqtree"), "r") as iqTreeFile: #open the file for reading
