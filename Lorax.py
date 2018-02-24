@@ -34,7 +34,7 @@ def getValFromFile(fileContents, regex, group):
         line=line.strip('\n')
         match = re.search(reg, line) 
         if match: 
-            return match.group(1)       
+            return match.group(group)
     return None 
 
 
